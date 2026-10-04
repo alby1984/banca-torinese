@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banca Torinese - Home Banking</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #30363d; padding-bottom: 15px; margin-bottom: 20px;">
+            <div>
+                <h2>Banca Torinese 🏛️</h2>
+                <p>Pannello di Controllo Utente Locale</p>
+            </div>
+            <button class="btn-login btn-danger" style="width: auto; padding: 8px 16px;" onclick="location.href='index.html'">Disconnetti</button>
+        </div>
+        
+        <!-- Blocco Superiore: Riepilogo Saldo -->
+        <div class="card" style="margin-bottom: 20px; background: linear-gradient(145deg, #0d0f12, #1c2128);">
+            <p>Saldo Totale Disponibile</p>
+            <h1 style="color: #2ea043; font-size: 42px; margin-top: 5px;">€ 4.250,00</h1>
+        </div>
+
+        <!-- Griglia Principale delle Funzionalità dell'App -->
+        <div class="dashboard-grid">
+            
+            <!-- Pannello 1: Ultime Transazioni -->
+            <div class="card">
+                <h3>Ultime Operazioni</h3>
+                <p style="margin-bottom: 15px;">I tuoi movimenti recenti</p>
+                <ul>
+                    <li>
+                        <span>Pizzeria Bella Napoli 🍕</span>
+                        <span style="color: #f85149; font-weight: bold;">- € 32,50</span>
+                    </li>
+                    <li>
+                        <span>Bonifico Ricevuto (Docente Corso) 🎓</span>
+                        <span style="color: #2ea043; font-weight: bold;">+ € 1.500,00</span>
+                    </li>
+                    <li>
+                        <span>Ricarica Telefonica Spusu 📱</span>
+                        <span style="color: #f85149;">- € 9,90</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Pannello 2: Modulo Disposizione Nuovi Bonifici -->
+            <div class="card">
+                <h3>Invia un Bonifico</h3>
+                <p style="margin-bottom: 15px;">Trasferisci denaro in tempo reale</p>
+                <form onsubmit="alert('Bonifico inviato con successo!'); return false;">
+                    <div class="input-group">
+                        <label>Beneficiario</label>
+                        <input type="text" placeholder="Nome o Ragione Sociale" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Codice IBAN</label>
+                        <input type="text" placeholder="IT60X0000000000000000000000" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Importo (€)</label>
+                        <input type="number" step="0.01" placeholder="0,00" required>
+                    </div>
+                    <button type="submit" class="btn-action">Conferma ed Invia</button>
+                </form>
+            </div>
+
+            <!-- Pannello 3: Schermata Impostazioni Applicazione -->
+            <div class="card" style="grid-column: span 2;">
+                <h3>Impostazioni Conto & Sicurezza</h3>
+                <p style="margin-bottom: 15px;">Personalizza la tua esperienza di Home Banking</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="input-group">
+                        <label>Tipo di Conto Corrente</label>
+                        <select>
+                            <option>Conto Privati Piemonte Premium</option>
+                            <option>Conto Sviluppatori Fedora Linux</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Limiti di Spesa Giornalieri</label>
+                        <select>
+                            <option>Fino a € 1.500 / giorno</option>
+                            <option>Fino a € 5.000 / giorno</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn-action" style="background-color: #21262d; border: 1px solid #30363d; margin-top: 10px;" onclick="alert('Impostazioni salvate nel sistema locale!')">Salva Preferenze</button>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>
