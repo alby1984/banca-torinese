@@ -91,5 +91,169 @@
 
         </div>
     </div>
+
+    <script>
+    (function(){
+      document.addEventListener('DOMContentLoaded', function(){
+        // Trova l'elemento che contiene il saldo (prima H1 con simbolo €)
+        var balanceEl = Array.from(document.querySelectorAll('h1')).find(function(h){
+          return h.textContent.indexOf('€') !== -1;
+        });
+        if(!balanceEl) return;
+
+        // Parse e format helper per stringhe in formato italiano (es. "€ 4.250,00")
+        function parseCurrency(str){
+          if(!str) return 0;
+          var s = String(str).replace(/\s/g,'').replace('€','').trim();
+          s = s.replace(/\./g,'').replace(',','.');
+          var n = parseFloat(s);
+          return isNaN(n) ? 0 : n;
+        }
+        function formatCurrency(n){
+          return n.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
+        }
+
+        var balance = parseCurrency(balanceEl.textContent);
+        var masked = false;
+
+        // Crea il pulsante Mostra/Nascondi saldo (non modifica l'HTML originale, inserito via JS)
+        var toggle = document.createElement('button');
+        toggle.type = 'button';
+        toggle.textContent = 'Mostra/Nascondi saldo';
+        toggle.className = 'btn-action';
+        toggle.style.marginLeft = '12px';
+        toggle.setAttribute('aria-pressed', 'false');
+        toggle.addEventListener('click', function(){
+          masked = !masked;
+          toggle.setAttribute('aria-pressed', masked ? 'true' : 'false');
+          renderBalance();
+        });
+
+        // Inserisce il pulsante subito dopo il saldo
+        balanceEl.parentNode.insertBefore(toggle, balanceEl.nextSibling);
+
+        function renderBalance(){
+          if(masked){
+            // Nasconde la cifra sostituendola con ***
+            balanceEl.textContent = '€ ***';
+          } else {
+            balanceEl.textContent = formatCurrency(balance);
+          }
+        }
+
+        renderBalance();
+
+        // Cerca il form del bonifico (card con h3 che contiene "Bonifico")
+        var forms = Array.from(document.querySelectorAll('.card form'));
+        var targetForm = forms.find(function(f){
+          var card = f.closest('.card');
+          return card && card.querySelector('h3') && card.querySelector('h3').textContent.toLowerCase().includes('bonifico');
+        }) || document.querySelector('.card form');
+
+        if(!targetForm) return;
+
+        // Rimuove eventuale onsubmit inline esistente per evitare alert duplicati
+        try{ targetForm.removeAttribute('onsubmit'); }catch(e){}
+
+        var amountInput = targetForm.querySelector('input[type="number"]');
+        var beneficiaryInput = targetForm.querySelectorAll('input')[0];
+
+        targetForm.addEventListener('submit', function(e){
+          e.preventDefault();
+
+          if(!amountInput){
+            alert('Campo importo non trovato.');
+            return;
+          }
+
+          var val = parseFloat(amountInput.value);
+          if(isNaN(val) || val <= 0){
+            alert('Inserisci un importo valido maggiore di 0.');
+            return;
+          }
+
+          var beneficiary = beneficiaryInput && beneficiaryInput.value && beneficiaryInput.value.trim()
+            ? beneficiaryInput.value.trim()
+            : 'Beneficiario';
+
+          // Sottrae l'importo dal saldo e arrotonda a 2 decimali
+          balance = Math.round((balance - val) * 100) / 100;
+
+          // Aggiorna la visualizzazione (rispetta lo stato mascherato)
+          renderBalance();
+
+          // Aggiunge l'operazione all'elenco "Ultime Operazioni"
+          var recentCard = Array.from(document.querySelectorAll('.card')).find(function(card){
+            var heading = card.querySelector('h3');
+            return heading && heading.textContent.toLowerCase().includes('ultime');
+          });
+          var recentList = recentCard ? recentCard.querySelector('ul') : document.querySelector('ul');
+          if(recentList){
+            var now = new Date();
+            var timeStamp = now.toLocaleString('it-IT', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+
+            var newItem = document.createElement('li');
+            newItem.style.opacity = '0';
+            newItem.style.transform = 'translateY(-6px)';
+            newItem.style.transition = 'all 0.25s ease';
+
+            var label = document.createElement('span');
+            label.textContent = beneficiary + ' 💸';
+
+            var meta = document.createElement('span');
+            meta.textContent = timeStamp;
+            meta.style.display = 'block';
+            meta.style.fontSize = '11px';
+            meta.style.color = '#8b949e';
+            meta.style.marginTop = '4px';
+
+            var valueWrap = document.createElement('span');
+            valueWrap.style.display = 'flex';
+            valueWrap.style.flexDirection = 'column';
+            valueWrap.style.alignItems = 'flex-end';
+
+            var amount = document.createElement('span');
+            amount.textContent = '- € ' + val.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            amount.style.color = '#f85149';
+            amount.style.fontWeight = 'bold';
+
+            valueWrap.appendChild(amount);
+            valueWrap.appendChild(meta);
+
+            var row = document.createElement('div');
+            row.style.display = 'flex';
+            row.style.justifyContent = 'space-between';
+            row.style.alignItems = 'center';
+            row.style.gap = '12px';
+            row.appendChild(label);
+            row.appendChild(valueWrap);
+
+            newItem.appendChild(row);
+            recentList.insertBefore(newItem, recentList.firstChild);
+
+            requestAnimationFrame(function(){
+              newItem.style.opacity = '1';
+              newItem.style.transform = 'translateY(0)';
+            });
+          }
+
+          // Mostra popup di conferma subito dopo l'invio simulato
+          var formattedAmount = val.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+          alert('Bonifico inviato con successo!\nImporto: € ' + formattedAmount + '\nSaldo aggiornato: ' + formatCurrency(balance));
+
+          // Resetta il form
+          try{ targetForm.reset(); }catch(e){}
+        }, false);
+
+      });
+    })();
+    </script>
+
 </body>
 </html>
